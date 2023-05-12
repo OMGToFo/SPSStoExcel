@@ -12,5 +12,5 @@ To use this app, follow these steps:
 - Select the SPSS file you want to view.
 - Once the file is loaded, you can view it on the main panel.Sometimes it takes some time o load and convert the SPSS-File
 - If you want to save the file as an Excel file, simply click on the "Save as Excel" button.
-- 
+
 That's it! This app should make it easy and convenient to view SPSS files and convert them to Excel files. Feel free to modify the code to suit your needs, and please let me (tomasGhotmail.ch) know if you have any issues or feedback. Enjoy!
