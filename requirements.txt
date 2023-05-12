@@ -1,3 +1,6 @@
 pandas==1.4.2
 pyreadstat==1.1.9
 streamlit==1.22.0
+xlrd
+openpyxl
+xlsxwriter
