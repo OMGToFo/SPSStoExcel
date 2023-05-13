@@ -4,7 +4,7 @@ import pyreadstat
 import tempfile
 from io import BytesIO
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
 st.subheader("Here you can view your SPSS-Files with/without Labels and also export them to Excel")
