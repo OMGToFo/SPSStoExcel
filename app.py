@@ -14,6 +14,9 @@ col_names_labels_df = pd.DataFrame()
 # File upload widget
 file = st.file_uploader("Upload SPSS file", type=[".sav"])
 
+if file is None:
+    st.info("It may take some time to load and concert the SPSS-Files, depending on the size of the dataset")
+
 if file is not None:
     # Convert SPSS file to dataframe
     try:
