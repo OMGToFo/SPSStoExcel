@@ -15,7 +15,7 @@ col_names_labels_df = pd.DataFrame()
 file = st.file_uploader("Upload SPSS file", type=[".sav"])
 
 if file is None:
-    st.info("It may take some time to load and concert the SPSS-Files, depending on the size of the dataset")
+    st.info("It may take some time to load and convert the SPSS-File, depending on the size of the dataset")
 
 if file is not None:
     # Convert SPSS file to dataframe
@@ -67,7 +67,7 @@ if file is not None:
         st.write("")
         st.write("")
 
-        rawDataExpander = st.expander("Show & save Raw Data?")
+        rawDataExpander = st.expander("Show & save Raw Data?")  ############################
         with rawDataExpander:
             st.write("## Raw Data")
             rawData = df.copy()
@@ -104,7 +104,7 @@ if file is not None:
         st.write("")
         st.write("")
 
-        LabelledDataExpander = st.expander("Show & save Data with labeled Values?")
+        LabelledDataExpander = st.expander("Show & save Data with labeled Values?") ############################
         with LabelledDataExpander:
             st.write("## Data with Labels")
             labelledData = df.copy()
@@ -134,7 +134,7 @@ if file is not None:
         st.write("")
         st.write("")
 
-        MetaDataExpander = st.expander("Show & save Meta-Data (Definition of Variables, Labels) ?")
+        MetaDataExpander = st.expander("Show & save Meta-Data (Definition of Variables, Labels) ?") ############################
         with MetaDataExpander:
             st.subheader("Metadata")
             meta_dict = meta.__dict__
