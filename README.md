@@ -4,7 +4,7 @@ I find that SPSS still has a very efficent way for viewing and analyzing data se
  
 Usage
 
-To use this app, follow these steps:
+To use this app locally on your computer, follow these steps:
 
 - Clone the repository to your local machine.
 - Install the required dependencies by running the command pip install -r requirements.txt.
