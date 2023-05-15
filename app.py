@@ -8,6 +8,15 @@ from io import BytesIO
 from streamlit_pandas_profiling import st_profile_report
 from pandas_profiling import ProfileReport
 
+
+#These are the visualization libraries. Matplotlib is standard and is what most people use.
+#Seaborn works on top of matplotlib, as we mentioned in the course.
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+
+
+
 st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
@@ -52,6 +61,9 @@ if file is not None:
 
 
 
+ ########################################## RawData File ##############################################################################################################################
+
+
         rawDataExpander = st.expander("Show & save Raw Data?")  ############################
         with rawDataExpander:
             st.write("## Raw Data")
@@ -90,6 +102,10 @@ if file is not None:
                            
                 
             st.write(rawData)
+            
+            if st.checkbox("Show Column Data Types?"):
+                st.write("Column Data Types")
+                st.write(rawData.dtypes)
 
 
             def to_excel(rawData):
@@ -123,11 +139,42 @@ if file is not None:
             if statisticalTestsRawData:
  
                my_korrelationsVariablenSelect = st.multiselect("Choose variables for tests",rawData.columns.tolist())
+               df_statistischeTestrawData = rawData[my_korrelationsVariablenSelect]       
+   
                
-               if len(my_korrelationsVariablenSelect):
+               if len(my_korrelationsVariablenSelect)>0:
+  
+                   if st.checkbox("Show descriptive Info?"):
+                       st.write(df_statistischeTestrawData.describe())
+                       st.write("")
+                       st.write(df_statistischeTestrawData.info())
+                       st.write("")                
+                   
+                   if st.checkbox("Show Pearson correlation coefficients?"):                 
+                     # Compute Pearson correlation coefficient for the features in our data set.
+                        # The correlation method in pandas, it has the Pearson correlation set as default.
+                    st.write(df_statistischeTestrawData.corr())
+                    
+                    df_korr = df_statistischeTestrawData.corr()
+                    df_korr['Variable'] = df_korr.index
+
+                    _="""
+                    # move column 'B' to the leftmost position
+                    col_name = 'Variable'
+                    col_pos = 0
+                    df_korr.insert(col_pos, col_name, df_korr.pop(col_name))
+                    
+                    st.write("Correlation Heatmap")
+                    fig, ax = plt.subplots()
+                    sns.heatmap(df.corr(),annot=False,cmap='RdBu')
+                    plt.title('Correlation Heatmap',fontsize=8)
+                    st.write(fig)
+                   """
+                   
+                   
                    if st.button("Show Profile-Reporting?"):
 
-                    df_statistischeTestrawData = rawData[my_korrelationsVariablenSelect]               
+           
                         
                         
                     st.write("ProfileReport:")
@@ -135,7 +182,8 @@ if file is not None:
                     st_profile_report(profile)
 
 
-
+                    export=profile.to_html()
+                    st.download_button(label="Download Profile Report?", data=export, file_name='report.html')
 
 
 
@@ -143,6 +191,7 @@ if file is not None:
         st.write("")
         
         
+ ########################################## Data with labeled Values ######################################################################################################
         
 
         LabelledDataExpander = st.expander("Show & save Data with labeled Values?") ############################
@@ -188,7 +237,9 @@ if file is not None:
                 
                 
             st.write(labelledData)
-
+    
+            if st.checkbox("Show Column Data Types of labelled data?"):
+                st.write(labelledData.dtypes)
 
             def to_excel(labelledData):
                 output = BytesIO()
@@ -222,21 +273,42 @@ if file is not None:
             if statisticalTests:
  
                my_korrelationsVariablenSelect = st.multiselect("Choose variables for tests",labelledData.columns.tolist(), key='LabeledData')
+               df_statistischeTestLabeledData = labelledData[my_korrelationsVariablenSelect]
                
-               if len(my_korrelationsVariablenSelect):
-                   if st.button("Show Profile-Reporting?", key='profileReporLabeledeData'):
+               if len(my_korrelationsVariablenSelect)>1:
+                    
+                if st.checkbox("Show descriptive Info of labeled Data?"):
+                       st.write(df_statistischeTestLabeledData.describe())
+                       st.write("")
+                       st.write(df_statistischeTestLabeledData.info())
+                       st.write("")                
+                   
+                #if st.checkbox("Show Pearson correlation coefficients?"):                 
+                     # Compute Pearson correlation coefficient for the features in our data set.
+                        # The correlation method in pandas, it has the Pearson correlation set as default.
+                   # st.write(df_statistischeTestLabeledData.corr())                  
+                   
+                   
+                   
+                   
+                if st.button("Show Profile-Reporting?", key='profileReporLabeledeData'):
 
-                    df_statistischeTest = labelledData[my_korrelationsVariablenSelect]               
+               
                         
                         
                     st.write("ProfileReport:")
-                    profile = ProfileReport(df_statistischeTest)
+                    profile = ProfileReport(df_statistischeTestLabeledData)
                     st_profile_report(profile)
+                    
+                    export=profile.to_html()
+                    st.download_button(label="Download Profile Report", data=export, file_name='report.html')
     
         
         
         
-        
+ ########################################## Metadata  ##############################################################################################################################   
+       
+       
         st.write("")
         st.write("")
 
