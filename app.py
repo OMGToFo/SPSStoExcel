@@ -4,6 +4,10 @@ import pyreadstat
 import tempfile
 from io import BytesIO
 
+#Um den Datensatz zu analysieren:
+from streamlit_pandas_profiling import st_profile_report
+from pandas_profiling import ProfileReport
+
 st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
@@ -29,6 +33,9 @@ if file is not None:
 
         # Extract dataframe from pyreadstat output
         df = pd.DataFrame(data)
+        
+        labelledData = df.copy()
+        rawData = df.copy()
 
         # Checkbox to allow renaming columns with variable labels ############################
         st.write("")
@@ -38,42 +45,50 @@ if file is not None:
         st.write("")
         st.write("")
         st.write("")
-        # Replace column names with variable labels if requested
-        if rename_columns:
-            # Extract variable labels from metadata
-            column_labels = meta.column_labels
 
-            # Extract column names to labels dictionary
-            column_names_to_labels = meta.column_names_to_labels
-
-            # Convert to DataFrame
-            col_names_labels_df = pd.DataFrame(column_names_to_labels.items(),
-                                               columns=['Column Name', 'Variable Label'])
-            col_names_labels_df['Zeilennummer'] = col_names_labels_df.index.astype(str)
-
-            # st.write("## Dataframe - Column Names to Labels")
-            # st.write(col_names_labels_df)
-
-            # Create a new column in col_names_labels_df with variable labels formatted as specified
-            col_names_labels_df['VariableLabelFormatted'] = col_names_labels_df['Variable Label'].str.replace(' ', '_')
-            col_names_labels_df['VariableLabelUnique'] = col_names_labels_df['Zeilennummer'] + '_' + \
-                                                         col_names_labels_df['VariableLabelFormatted']
-
-            # Rename columns in the df DataFrame using VariableLabelFormatted values
-            for i, row in col_names_labels_df.iterrows():
-                if row['Column Name'] in df.columns:
-                    df.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)
 
         st.write("")
         st.write("")
+
+
 
         rawDataExpander = st.expander("Show & save Raw Data?")  ############################
         with rawDataExpander:
             st.write("## Raw Data")
-            rawData = df.copy()
+
 
             if rename_columns:
                 st.info("Datafile with renamed columns")
+                
+                 # Replace column names with variable labels if requested
+
+                # Extract variable labels from metadata
+                column_labels = meta.column_labels
+
+                # Extract column names to labels dictionary
+                column_names_to_labels = meta.column_names_to_labels
+
+                # Convert to DataFrame
+                col_names_labels_df = pd.DataFrame(column_names_to_labels.items(),
+                                                columns=['Column Name', 'Variable Label'])
+                col_names_labels_df['Zeilennummer'] = col_names_labels_df.index.astype(str)
+
+                # st.write("## Dataframe - Column Names to Labels")
+                # st.write(col_names_labels_df)
+
+                # Create a new column in col_names_labels_df with variable labels formatted as specified
+                col_names_labels_df['VariableLabelFormatted'] = col_names_labels_df['Variable Label'].str.replace(' ', '_')
+                col_names_labels_df['VariableLabelUnique'] = col_names_labels_df['Zeilennummer'] + '_' + \
+                                                            col_names_labels_df['VariableLabelFormatted']
+
+                # Rename columns in the df DataFrame using VariableLabelFormatted values
+                for i, row in col_names_labels_df.iterrows():
+                    if row['Column Name'] in rawData.columns:
+                        rawData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)
+                
+                
+                           
+                
             st.write(rawData)
 
 
@@ -95,21 +110,83 @@ if file is not None:
                                data=df_xlsx,
                                file_name='SPSSRawDataToExcel.xlsx')
 
-        # Replace values with value labels
-        for var in meta.variable_value_labels:
-            if var in df.columns:
-                value_labels = meta.variable_value_labels[var]
-                df[var] = df[var].replace(value_labels)
+
+            # Checkbox for statistical profile reporting ############################
+            st.write("")
+            st.write("")
+            st.write("")
+            statisticalTestsRawData = st.checkbox("Perform statistical tests?", key='RawdataTests')
+            st.write("")
+            st.write("")
+            st.write("")
+            # Replace column names with variable labels if requested
+            if statisticalTestsRawData:
+ 
+               my_korrelationsVariablenSelect = st.multiselect("Choose variables for tests",rawData.columns.tolist())
+               
+               if len(my_korrelationsVariablenSelect):
+                   if st.button("Show Profile-Reporting?"):
+
+                    df_statistischeTestrawData = rawData[my_korrelationsVariablenSelect]               
+                        
+                        
+                    st.write("ProfileReport:")
+                    profile = ProfileReport(df_statistischeTestrawData)
+                    st_profile_report(profile)
+
+
+
+
+
 
         st.write("")
         st.write("")
+        
+        
+        
 
         LabelledDataExpander = st.expander("Show & save Data with labeled Values?") ############################
         with LabelledDataExpander:
             st.write("## Data with Labels")
-            labelledData = df.copy()
+            
+             # Replace values with value labels
+            for var in meta.variable_value_labels:
+                if var in labelledData.columns:
+                    value_labels = meta.variable_value_labels[var]
+                    labelledData[var] = labelledData[var].replace(value_labels)   
+    
             if rename_columns:
                 st.info("Datafile with renamed columns")
+                            # Extract variable labels from metadata
+                column_labels = meta.column_labels
+
+                # Extract column names to labels dictionary
+                column_names_to_labels = meta.column_names_to_labels
+
+                # Convert to DataFrame
+                col_names_labels_df = pd.DataFrame(column_names_to_labels.items(),
+                                                columns=['Column Name', 'Variable Label'])
+                col_names_labels_df['Zeilennummer'] = col_names_labels_df.index.astype(str)
+
+                # st.write("## Dataframe - Column Names to Labels")
+                # st.write(col_names_labels_df)
+
+                # Create a new column in col_names_labels_df with variable labels formatted as specified
+                col_names_labels_df['VariableLabelFormatted'] = col_names_labels_df['Variable Label'].str.replace(' ', '_')
+                col_names_labels_df['VariableLabelUnique'] = col_names_labels_df['Zeilennummer'] + '_' + \
+                                                            col_names_labels_df['VariableLabelFormatted']
+
+                # Rename columns in the df DataFrame using VariableLabelFormatted values
+                for i, row in col_names_labels_df.iterrows():
+                    if row['Column Name'] in labelledData.columns:
+                        labelledData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)  
+    
+            
+
+            
+
+                
+                
             st.write(labelledData)
 
 
@@ -131,6 +208,35 @@ if file is not None:
                                data=df_xlsx,
                                file_name='SPSSLabelledDataToExcel.xlsx')
 
+        
+    
+                # Checkbox for statistical profile reporting ############################
+            st.write("")
+            st.write("")
+            st.write("")
+            statisticalTests = st.checkbox("Perform statistical tests?",key='statTestLabeledData')
+            st.write("")
+            st.write("")
+            st.write("")
+            # Replace column names with variable labels if requested
+            if statisticalTests:
+ 
+               my_korrelationsVariablenSelect = st.multiselect("Choose variables for tests",labelledData.columns.tolist(), key='LabeledData')
+               
+               if len(my_korrelationsVariablenSelect):
+                   if st.button("Show Profile-Reporting?", key='profileReporLabeledeData'):
+
+                    df_statistischeTest = labelledData[my_korrelationsVariablenSelect]               
+                        
+                        
+                    st.write("ProfileReport:")
+                    profile = ProfileReport(df_statistischeTest)
+                    st_profile_report(profile)
+    
+        
+        
+        
+        
         st.write("")
         st.write("")
 
