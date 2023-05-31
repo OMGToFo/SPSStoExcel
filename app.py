@@ -24,7 +24,7 @@ sns.set()
 st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
-st.subheader("Here you can view SPSS-Files with/without labels and also export to Excel")
+st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some basic statistical testing and tabulation")
 
 col_names_labels_df = pd.DataFrame()
 
@@ -198,7 +198,7 @@ if file is not None:
                     df_korr = df_statistischeTestrawData.corr()
                     df_korr['Variable'] = df_korr.index
 
-                    _="""
+
                     # move column 'B' to the leftmost position
                     col_name = 'Variable'
                     col_pos = 0
@@ -206,10 +206,10 @@ if file is not None:
                     
                     st.write("Correlation Heatmap")
                     fig, ax = plt.subplots()
-                    sns.heatmap(df.corr(),annot=False,cmap='RdBu')
+                    sns.heatmap(df_statistischeTestrawData.corr(),annot=False,cmap='RdBu')
                     plt.title('Correlation Heatmap',fontsize=8)
                     st.write(fig)
-                   """
+
 
                    st.write("")
                    
@@ -405,8 +405,8 @@ if file is not None:
                     st.write("selected_numeric_cols:", selected_numeric_cols)
                     st.write("selected_categorical_cols:", selected_categorical_cols)
 
-                    st.markdown("#### Ausgewähle Variablen und die jeweilige Auswahl an Ausprägungen:")
-                    st.info("Zeilen die None enthalten werden gelöscht")
+                    st.markdown("#### Selected Variables and their Labels/Values:")
+                    st.info("None's are deleted. I'll add functionality here if/when i figure out how")
                     cols = st.columns(anzahlVariablen)
                     
                     VariablenKolumnenAuswahl = merged_df.columns.values.tolist()
@@ -469,7 +469,7 @@ if file is not None:
 
 
 
-                        st.info("cross tables with average of categries")
+                        st.info("         ")
 
 
                         # Group by selected object variables and calculate average values for selected float variables
@@ -493,7 +493,7 @@ if file is not None:
                             TransposedDataframe = TransposedDataframe.drop(TransposedDataframe.index[0])
                             #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.transpose()
 
-
+                        st.write("")
                         st.write("Table with categries in the columns:  ", TransposedDataframe)
 
                         def to_excel(TransposedDataframe):
@@ -514,6 +514,7 @@ if file is not None:
                                            data=df_xlsx,
                                file_name='SPSSCrossTableToExcel.xlsx')
 
+                        st.write("")
                         st.write("")
                         ThomasFormatiertesDataframe.drop(['KatVariable'], axis=1, inplace=True)
                         st.write("Table with categories in the rows: ",ThomasFormatiertesDataframe)
@@ -537,13 +538,39 @@ if file is not None:
                                            data=df_xlsx,
                                file_name='SPSSCrossTTableRowCategoriesToExcel.xlsx')
 
+                st.write("")
+                st.write("")
 
 
+                if st.checkbox("Show Pearson correlation coefficients of the selected numeric variables?"):
+                    # Compute Pearson correlation coefficient for the features in our data set.
+                    # The correlation method in pandas, it has the Pearson correlation set as default.
+                    st.write(merged_df.corr())
 
+                    df_korr = merged_df.corr()
+                    df_korr['Variable'] = df_korr.index
 
+                    # move column 'B' to the leftmost position
+                    col_name = 'Variable'
+                    col_pos = 0
+                    df_korr.insert(col_pos, col_name, df_korr.pop(col_name))
 
+                    st.write("Correlation Heatmap")
+                    fig, ax = plt.subplots()
+                    sns.heatmap(merged_df.corr(), annot=False, cmap='RdBu')
+                    plt.title('Correlation Heatmap', fontsize=8)
+                    st.write(fig)
 
+                st.write("")
+                st.write("")
 
+                if st.button("Show Profile-Reporting of all selected variables?", key='profileReporLabeledeData'):
+                    st.write("ProfileReport:")
+                    profile = ProfileReport(merged_df)
+                    st_profile_report(profile)
+
+                    export = profile.to_html()
+                    st.download_button(label="Download Profile Report of selected variables", data=export, file_name='report.html')
 
         ########################################## Metadata  ##############################################################################################################################
        
