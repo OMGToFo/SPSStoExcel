@@ -1,11 +1,12 @@
 # SPSStoExcel
-This is a super simple "app" that let's you view SPSS Files and export the data with or without the labels. 
-I find that SPSS still has a very efficent way for viewing and analyzing data sets. The possibility to easily switch betwen raw data, labelled data and variable definitions is still unique and very convenient. 
-In this app you can at least export the different SPSS views to excel. i also added some basic options for statistical analysis and tabulations, hope to improve the possibilities over time.
+This is a super simple "app" that let's you view SPSS Files and export the data with or without the labels to Excel. 
 
 Here's the link to the online version:
 https://spsstoexcel.streamlit.app/
- 
+Unfortunatlely it get's shut down now and then by Streamlit, i think due to data usage limits
+
+I think that SPSS still has a very efficent way for viewing and analyzing data sets. The possibility to easily switch betwen raw data, labelled data and variable definitions is still unique and very convenient. In this app you can at least export the different SPSS views to excel. i also added some basic options for statistical analysis and tabulations, hope to improve the possibilities over time.
+
 Local Usage
 
 To use this app locally on your computer, follow these steps:
