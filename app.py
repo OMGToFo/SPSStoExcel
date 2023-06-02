@@ -102,15 +102,10 @@ if file is not None:
                     if row['Column Name'] in rawData.columns:
                         rawData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)
                 
-                
-                           
-                
-            st.write(rawData)
-            
-            if st.checkbox("Show Column Data Types?"):
-                st.write("Column Data Types")
-                st.write(rawData.dtypes)
 
+
+
+            st.write(rawData)
 
             def to_excel(rawData):
                 output = BytesIO()
@@ -131,6 +126,19 @@ if file is not None:
                                file_name='SPSSRawDataToExcel.xlsx')
 
 
+            
+            if st.checkbox("Show Column Data Types?"):
+                st.write("Column Data Types")
+                st.write(rawData.dtypes)
+
+            if st.checkbox("Show Variable descriptions (Max/Min/Mean/Count Values)?"):
+                st.write("Description of Variables")
+                st.write(rawData.describe())
+
+
+
+
+
             # Checkbox for statistical profile reporting ############################
             st.write("")
             st.write("")
@@ -147,7 +155,7 @@ if file is not None:
 
                st.write("")
 
-               if st.checkbox("Show simple Chart?"):
+               if st.checkbox("Create simple Chart?"):
                #bygga in en chartmodul här?
                    #st.write(df_statistischeTestrawData)
                    averages = df_statistischeTestrawData[my_korrelationsVariablenSelect].mean()
@@ -273,9 +281,13 @@ if file is not None:
                         labelledData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)  
     
 
+
+
+
+
             st.write(labelledData)
     
-            if st.checkbox("Show Column Data Types of labelled data?"):
+            if st.checkbox("Show Column Data Types of labelled data?", key="labelledData.dtypes"):
                 st.write(labelledData.dtypes)
 
             def to_excel(labelledData):
@@ -406,7 +418,7 @@ if file is not None:
                     st.write("selected_categorical_cols:", selected_categorical_cols)
 
                     st.markdown("#### Selected Variables and their Labels/Values:")
-                    st.info("None's are deleted. I'll add functionality here if/when i figure out how")
+
                     cols = st.columns(anzahlVariablen)
                     
                     VariablenKolumnenAuswahl = merged_df.columns.values.tolist()
@@ -416,7 +428,8 @@ if file is not None:
 
                     dict_of_merged_df= {} # initialize empty dictionary
 
-                    merged_df = merged_df.dropna(axis = 0, how ='any') 
+                    st.info("None's are not deleted, might be a problem. I'll add functionality here if/when i figure out how")
+                    #merged_df = merged_df.dropna(axis = 0, how ='any') 
 
                     for i in range(anzahlVariablen):
                         col = cols[i%anzahlVariablen]
@@ -448,7 +461,7 @@ if file is not None:
                 #st.write(merged_df.dtypes)
 
                 if st.checkbox("Create cross-tabulations?"):
-                    st.title("Cross Tables with Average Values")
+                    st.title("Cross Tables with Average Values - Beta")
 
                     # Create multiselect widgets for object and float variables
                     selected_object_vars = selected_categorical_cols
@@ -470,7 +483,7 @@ if file is not None:
 
 
                         st.info("         ")
-
+                        st.write("Count of cases: ",len(merged_df))
 
                         # Group by selected object variables and calculate average values for selected float variables
 
@@ -494,7 +507,7 @@ if file is not None:
                             #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.transpose()
 
                         st.write("")
-                        st.write("Table with categries in the columns:  ", TransposedDataframe)
+                        st.write("Table with categories in the columns:  ", TransposedDataframe)
 
                         def to_excel(TransposedDataframe):
                             output = BytesIO()
