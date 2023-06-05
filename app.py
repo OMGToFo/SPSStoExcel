@@ -343,7 +343,7 @@ if file is not None:
                    
                    
                    
-                if st.button("Show Profile-Reporting?", key='profileReporLabeledeData'):
+                if st.button("Show Profile-Reporting?", key='profileReporLabeledeDataReport'):
 
                
                         
@@ -410,6 +410,90 @@ if file is not None:
                 st.dataframe(merged_df)
 
 
+                def to_excel(merged_df):
+                    output = BytesIO()
+                    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                    merged_df.to_excel(writer, index=True, sheet_name='Sheet1')
+                    workbook = writer.book
+                    worksheet = writer.sheets['Sheet1']
+                    format1 = workbook.add_format({'num_format': '0.00'})
+                    worksheet.set_column('A:A', None, format1)
+                    writer.save()
+                    processed_data = output.getvalue()
+                    return processed_data
+
+
+                df_xlsx = to_excel(merged_df)
+                st.download_button(label='📥 Export Table with the selected columns to Excel?',
+                                   data=df_xlsx,
+                                   file_name='SPSSselectedColumnsToExcel.xlsx')
+
+
+
+                st.write("")
+                st.write("")
+
+                if st.checkbox("Show Frequencies and Percentages of Values"):
+
+                    prozente_anzahl_df = pd.DataFrame()
+                    for column in merged_df.columns[0:]:
+                        st.write(column)
+                        prozente_df = (merged_df[column].value_counts(normalize=True).reset_index())
+                        prozente_df.columns.values[0] = "Label"
+                        prozente_df.rename(columns={prozente_df.columns[1]: 'Percentage'}, inplace=True)
+                        #prozente_df['Variable'] = column
+                        prozente_df.insert(0, 'Variable', column)
+
+                        anzahl_df = (merged_df[column].value_counts().reset_index())
+                        anzahl_df.rename(columns={anzahl_df.columns[1]: 'Anzahl'}, inplace=True)
+                        #st.write(anzahl_df)
+                        prozente_df['Cases'] = anzahl_df.Anzahl
+
+                        prozente_df = prozente_df.sort_values('Label')
+
+                        prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
+
+
+                        #Einzelne Tabellen
+                        st.write(prozente_df)
+
+                    st.write("")
+                    st.write("")
+                    st.subheader("Table with all percentages and frequencies of the selected variables")
+                    st.write(prozente_anzahl_df)
+
+
+                    def to_excel(prozente_anzahl_df):
+                        output = BytesIO()
+                        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                        prozente_anzahl_df.to_excel(writer, index=False, sheet_name='Sheet1')
+                        workbook = writer.book
+                        worksheet = writer.sheets['Sheet1']
+                        format1 = workbook.add_format({'num_format': '0.00'})
+                        worksheet.set_column('A:A', None, format1)
+                        writer.save()
+                        processed_data = output.getvalue()
+                        return processed_data
+
+
+                    df_xlsx = to_excel(prozente_anzahl_df)
+                    st.download_button(label='📥 Export Table with all percentages and frequencies to Excel?',
+                                       data=df_xlsx,
+                                       file_name='SPSSFrequencyPercentageTableToExcel.xlsx')
+
+
+                    st.write("")
+                    st.write("")
+
+                    #dataframe mit den häufigkeiten der Kombinationen ####################
+                    AlleKombinationenProzent = merged_df[selected_categorical_cols].value_counts(normalize=True).reset_index()
+                    #AlleKombinationenProzent.columns.values[0] = "Label"
+                    #AlleKombinationenProzent.rename(columns={AlleKombinationenProzent.columns[1]: 'Percentage'}, inplace=True)
+                    st.write("Occurence of combinations of the categorical variables")
+                    st.dataframe(AlleKombinationenProzent)
+
+
+
                 if st.checkbox("Show labelling/unique values?"):
                     anzahlVariablen = len(selected_numeric_cols) + len(selected_categorical_cols)
                     st.write("Anzahl Variablen: ",anzahlVariablen)
@@ -460,6 +544,7 @@ if file is not None:
 
                 #st.write(merged_df.dtypes)
 
+                ################### cross tabulations ####################################
                 if st.checkbox("Create cross-tabulations?"):
                     st.title("Cross Tables with Average Values - Beta")
 
@@ -494,7 +579,7 @@ if file is not None:
                         for t in range(AnzahlKategorischeVariablen):
                             Thomasgrouped_df = merged_df.groupby(selected_object_vars[t])[selected_float_vars].mean().reset_index()
                             Thomasgrouped_df.columns.values[0] = "KatVariable"
-                            #st.write("Thomasgrouped_df: ", Thomasgrouped_df)
+                            #st.write("Hej Thomasgrouped_df: ", Thomasgrouped_df)
 
                             #ThomasFormatiertesDataframe.append(Thomasgrouped_df)
                             ThomasFormatiertesDataframe = pd.concat([ThomasFormatiertesDataframe, Thomasgrouped_df])
@@ -507,7 +592,7 @@ if file is not None:
                             #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.transpose()
 
                         st.write("")
-                        st.write("Table with categories in the columns:  ", TransposedDataframe)
+                        st.write("Table with average values - categories in the columns:  ", TransposedDataframe)
 
                         def to_excel(TransposedDataframe):
                             output = BytesIO()
@@ -530,7 +615,7 @@ if file is not None:
                         st.write("")
                         st.write("")
                         ThomasFormatiertesDataframe.drop(['KatVariable'], axis=1, inplace=True)
-                        st.write("Table with categories in the rows: ",ThomasFormatiertesDataframe)
+                        st.write("Table with average values - categories in the rows: ",ThomasFormatiertesDataframe)
 
 
                         def to_excel(ThomasFormatiertesDataframe):
@@ -550,6 +635,9 @@ if file is not None:
                         st.download_button(label='📥 Export Table with categories in the rows to Excel?',
                                            data=df_xlsx,
                                file_name='SPSSCrossTTableRowCategoriesToExcel.xlsx')
+
+
+                ################### cross tabulations - end ####################################
 
                 st.write("")
                 st.write("")
@@ -584,6 +672,9 @@ if file is not None:
 
                     export = profile.to_html()
                     st.download_button(label="Download Profile Report of selected variables", data=export, file_name='report.html')
+
+
+
 
         ########################################## Metadata  ##############################################################################################################################
        
