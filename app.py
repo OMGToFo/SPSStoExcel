@@ -54,7 +54,7 @@ if file is not None:
         st.write("")
         st.write("")
         st.write("")
-        rename_columns = st.checkbox("Rename column names with labels")
+        rename_columns = st.checkbox("Rename column names with labels \n (attention - as of now there have to be Variable Labels to all Variables)")
         st.write("")
         st.write("")
         st.write("")
@@ -433,11 +433,15 @@ if file is not None:
                 st.write("")
                 st.write("")
 
-                if st.checkbox("Show Frequencies and Percentages of Values"):
+                #Tabellen mit Häufigkeiten und Prozenten #########################################
+
+                if st.checkbox("Show Frequencies and Percentages of Values for every chosen Variable"):
+
+                    individualTables = st.checkbox("Show individual tables for every Variable") 
 
                     prozente_anzahl_df = pd.DataFrame()
                     for column in merged_df.columns[0:]:
-                        st.write(column)
+                        
                         prozente_df = (merged_df[column].value_counts(normalize=True).reset_index())
                         prozente_df.columns.values[0] = "Label"
                         prozente_df.rename(columns={prozente_df.columns[1]: 'Percentage'}, inplace=True)
@@ -453,9 +457,10 @@ if file is not None:
 
                         prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
 
-
-                        #Einzelne Tabellen
-                        st.write(prozente_df)
+                        if individualTables:
+                            #Einzelne Tabellen
+                            st.write(column)
+                            st.write(prozente_df)
 
                     st.write("")
                     st.write("")
@@ -484,6 +489,17 @@ if file is not None:
 
                     st.write("")
                     st.write("")
+
+
+
+
+
+
+
+
+
+
+
 
                     #dataframe mit den häufigkeiten der Kombinationen ####################
                     AlleKombinationenProzent = merged_df[selected_categorical_cols].value_counts(normalize=True).reset_index()
@@ -527,7 +543,9 @@ if file is not None:
                     for k in range(AnzahlKategorischeVariablen):
                         KategorienListe = merged_df[VariablenKolumnenAuswahl[k]].unique()
 
-                        #st.write("KategorienListe: ",KategorienListe)
+
+
+                        st.write("KategorienListe: ",KategorienListe)
 
                         #st.write("i: ",i)
                         #col.text_input('Ausprägung', key=i)
@@ -546,7 +564,7 @@ if file is not None:
 
                 ################### cross tabulations ####################################
                 if st.checkbox("Create cross-tabulations?"):
-                    st.title("Cross Tables with Average Values - Beta")
+                    st.subheader("Cross Tables with Average Values - Beta")
 
                     # Create multiselect widgets for object and float variables
                     selected_object_vars = selected_categorical_cols
@@ -578,6 +596,9 @@ if file is not None:
                         AnzahlKategorischeVariablen = len(selected_categorical_cols)
                         for t in range(AnzahlKategorischeVariablen):
                             Thomasgrouped_df = merged_df.groupby(selected_object_vars[t])[selected_float_vars].mean().reset_index()
+                            
+                            
+                            
                             Thomasgrouped_df.columns.values[0] = "KatVariable"
                             #st.write("Hej Thomasgrouped_df: ", Thomasgrouped_df)
 
@@ -635,6 +656,106 @@ if file is not None:
                         st.download_button(label='📥 Export Table with categories in the rows to Excel?',
                                            data=df_xlsx,
                                file_name='SPSSCrossTTableRowCategoriesToExcel.xlsx')
+
+
+
+                    st.write("")
+                    st.write("")
+
+
+                #Tabellen mit Haeufigkeiten und Prozenten  - Versuch mit Kreuztabellen#########################################
+                #Kat Variablen werden zu Spalten #############
+                    # Generate cross table with average values
+
+                    st.subheader("Crosstable with column percentages of chosen variables")
+                    st.info("All variables are treated as categorical values here")
+
+                    merged_df_KatVariablen = labelledData
+                    categorical_cols_forCrossTable = merged_df_KatVariablen.columns.tolist()
+
+                    st.write("")
+                    selected_categorical_cols_forCrossTable = st.multiselect('Select variables (men/women, old/young..):',categorical_cols_forCrossTable, default = selected_categorical_cols,key="selected_categorical_cols_forCrossTable")
+
+
+                    if selected_categorical_cols_forCrossTable:
+                        #KategorienAlsSpalten_df = pd.DataFrame(columns=['KatVariable']+ list(selected_categorical_cols))
+                        KategorienAlsSpalten_df = pd.DataFrame()
+
+
+                        #ThomasFormatiertesZahlenDataframe = pd.DataFrame(columns=['KatVariable'] + list(selected_float_vars))
+                        AnzahlKategorischeVariablen = len(selected_categorical_cols_forCrossTable)
+
+                        
+                        #SpaltenVariableTabelle = pd.DataFrame(columns= list(selected_object_vars))
+                        
+
+                        SpaltenVariableKumulierteTabelle = pd.DataFrame()
+
+                        for spaltenVariableNr in range(AnzahlKategorischeVariablen):
+                            
+                            SpaltenVariableTabelle = pd.DataFrame()
+                            #SpaltenVariableTabelle['VariableName'] = selected_categorical_cols_forCrossTable[spaltenVariableNr]
+                            VariableName = selected_categorical_cols_forCrossTable[spaltenVariableNr]
+                            #st.write("VariableName: ",VariableName)
+
+                            #st.write("spaltenVariableNr: ",spaltenVariableNr)
+                            #prozente_Spalten_df = pd.DataFrame()
+                            for zeilenVariableNr in range(AnzahlKategorischeVariablen):
+                                #st.write("zeilenVariableNr: ",zeilenVariableNr)
+                                #st.write("selected_object_vars[t]", selected_object_vars[zeilenVariableNr])
+                                #ThomasTestgrouped_df = merged_df.groupby(selected_object_vars[t])[selected_float_vars].mean().reset_index()
+                                #st.write("ThomasTestgrouped_df: ", ThomasTestgrouped_df)
+                                
+
+                                zwischenSpaltenVariableTabelle = pd.crosstab(merged_df_KatVariablen[selected_categorical_cols_forCrossTable[zeilenVariableNr]], merged_df_KatVariablen[selected_categorical_cols_forCrossTable[spaltenVariableNr]], normalize='columns') *100 #normalize='columns' gibt Spalten% normalize=True gibt Tabellen% , margins=True, margins_name="Total" gibt Totalspalte
+                                zwischenSpaltenVariableTabelle.index.names = ['Variable']
+
+                                
+
+                                #zwischenSpaltenVariableTabelle['Variabe'] = zwischenSpaltenVariableTabelle.index
+                                #st.write("zwischenSpaltenVariableTabelle: ",zwischenSpaltenVariableTabelle)
+                                
+                                #ProbeTest = (merged_df[selected_object_vars[t]].value_counts(normalize=True).reset_index())
+                                #st.write("ProbeTest: ",ProbeTest)
+                                #SpaltenVariableTabelle = SpaltenVariableTabelle.append(zwischenSpaltenVariableTabelle) #fügt die Zwischentabellen nacheinander zusammen 
+                                SpaltenVariableTabelle = pd.concat([SpaltenVariableTabelle, zwischenSpaltenVariableTabelle]) #fügt die Zwischentabellen nacheinander zusammen, axis=1 könnte ein tip sein..
+                                
+                                
+                                
+                                #st.write("SpaltenVariableTabelle: ",SpaltenVariableTabelle)
+                                #SpaltenVariableTabelle = SpaltenVariableTabelle.assign(key=0).merge(zwischenSpaltenVariableTabelle.assign(key=0))
+                            
+                            #st.write("SpaltenVariableTabelle: ",SpaltenVariableTabelle)   
+                            SpaltenVariableKumulierteTabelle =  pd.concat([SpaltenVariableKumulierteTabelle, SpaltenVariableTabelle], axis=1 ) #yes!!! axis=1 hat's gebracht!!!!
+                            #st.write("SpaltenVariableKumulierteTabelle: ",SpaltenVariableKumulierteTabelle)   
+
+                        #runden
+                        SpaltenVariableKumulierteTabelle = SpaltenVariableKumulierteTabelle.round(decimals = 2)
+
+                        #Prozentzeichen einfügen
+                        SpaltenVariableKumulierteTabelle = SpaltenVariableKumulierteTabelle.astype(str).apply(lambda x:x + '%') 
+
+
+
+                        st.write("Table with column-percentages per variable: ",SpaltenVariableKumulierteTabelle)
+                        st.write("")
+                        st.write("")
+                        #st.subheader("Table Versuchsanfang Crosstable ..with all percentages and frequencies of the selected variables")
+                        #st.write(KategorienAlsSpalten_df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                 ################### cross tabulations - end ####################################
