@@ -12,6 +12,8 @@ import numpy as np
 from streamlit_pandas_profiling import st_profile_report
 from pandas_profiling import ProfileReport
 
+#2023.06.18 pygwalker visualization library
+import pygwalker as pyg
 
 #These are the visualization libraries. Matplotlib is standard and is what most people use.
 #Seaborn works on top of matplotlib, as we mentioned in the course.
@@ -54,7 +56,7 @@ if file is not None:
         st.write("")
         st.write("")
         st.write("")
-        rename_columns = st.checkbox("Rename column names with labels \n (attention - as of now there have to be Variable Labels to all Variables)")
+        rename_columns = st.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
         st.write("")
         st.write("")
         st.write("")
@@ -366,7 +368,7 @@ if file is not None:
         if len(rawData)>1 and len(labelledData)>1:
 
 
-            MergedDataExpander = st.expander("Merge categorical and numerical variables to a new dataset?") ############################
+            MergedDataExpander = st.expander("Create a new dataset with chosen variables?") ############################
             with MergedDataExpander:
 
                 # Load the data frames
@@ -383,9 +385,9 @@ if file is not None:
 
                 # Let the user select columns to merge
                 st.write("")
-                selected_numeric_cols = st.multiselect('Select columns with numeric values (brand awareness 0-100, sympathy 1-7,...) :', numeric_cols)
+                selected_numeric_cols = st.multiselect('Select numeric variables (brand awareness 0-100, sympathy 1-7,...) :', numeric_cols)
                 st.write("")
-                selected_categorical_cols = st.multiselect('Select columns with categories (men/women, old/young..):', categorical_cols)
+                selected_categorical_cols = st.multiselect('Select catgorical variables (men/women, old/young..):', categorical_cols)
                 st.write("")
                 # Merge the selected columns
                 merged_df = pd.DataFrame()
@@ -402,42 +404,139 @@ if file is not None:
                     merged_df[col] = df1_prefixed['numeric_' + col]
 
 
-                st.write("## Combined dataset")
-                if rename_columns:
-                    st.info("Datafile with renamed columns")
+                st.write("")
+                st.write("")
+
+                # Recode Variables? #######################
+
+                if st.checkbox("Select Variables to recode while changing the original variables?"):
+                    selected_RecodeColumns = st.multiselect('Select variables to recode', merged_df.columns)
+                    if selected_RecodeColumns:
+                        recode_data = {}
+                        # Recode values
+                        for column in selected_RecodeColumns:
+                            unique_values = merged_df[column].unique()
+                            st.info(f"Recode {column}")
+                            recode_map = {}
+                            for value in unique_values:
+                                new_value = st.text_input(f"Insert new value for {value}", value, key=f"new_valueRecode{value}")
+                                recode_map[value] = new_value
+                            recode_data[column] = recode_map
+
+                        recode_button = st.checkbox(":point_right: :orange[Now recode these values and replace the original variables!]", key="recode_button")
+                        if recode_button:
+                            #st.subheader("Recoded Dataset")
+                            #recoded_df = merged_df.copy()
+                            for column, recode_map in recode_data.items():
+                                merged_df[column] = merged_df[column].map(recode_map)
+
+
+
+                st.write("")
+                st.write("")
+
+                if st.checkbox("Select Variables to recode into new Variables?"):
+                    selected_RecodeToNewColumns = st.multiselect('Select the variables to recode into new Variables', merged_df.columns, key="selected_RecodeToNewColumns")
+                    if selected_RecodeToNewColumns:
+                        recode_data = {}
+                        # Recode values
+                        for column in selected_RecodeToNewColumns:
+                            unique_values = merged_df[column].unique()
+                            st.info(f"Recode {column}")
+                            recode_map = {}
+                            for value in unique_values:
+                                new_value = st.text_input(f"New value for {value}", value, key=f"new_valueRecodeToNew{value}")
+                                recode_map[value] = new_value
+                            recode_data[column] = recode_map
+
+                        recodetoNewVariable_button = st.checkbox(":point_right: :orange[Now Recode these values into new variables!]", key="recodetoNewVariable_button")
+                        if recodetoNewVariable_button:
+                            #st.subheader("Recoded Dataset with new recodes Variables")
+                            #recoded_df = merged_df.copy()
+                            for column, recode_map in recode_data.items():
+                                merged_df[column + "_recoded"] = merged_df[column].map(recode_map)
+
+
+
+
+
+
+                st.write("")
+                st.write("")
+
                 # Display the merged data frame
-                st.write("Table with selected columns (merged_df):")
-                st.dataframe(merged_df)
+                if len(merged_df)>0:
+                    st.write("## Combined dataset")
+                    if rename_columns:
+                        st.info("Datafile with renamed columns")
+                    #st.subheader("Dataset with selected columns (merged_df):")
+                    #st.dataframe(merged_df)
+
+                    merged_df = st.experimental_data_editor(merged_df, num_rows="dynamic")
+
+                #st.write("merged_df.columns", merged_df.columns)
 
 
-                def to_excel(merged_df):
-                    output = BytesIO()
-                    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-                    merged_df.to_excel(writer, index=True, sheet_name='Sheet1')
-                    workbook = writer.book
-                    worksheet = writer.sheets['Sheet1']
-                    format1 = workbook.add_format({'num_format': '0.00'})
-                    worksheet.set_column('A:A', None, format1)
-                    writer.save()
-                    processed_data = output.getvalue()
-                    return processed_data
+                #st.write("Editable Table with selected columns (edited_df):")
+                #Test mit editierbares dataframe
+                #edited_df = st.experimental_data_editor(merged_df,use_container_width=True,num_rows="dynamic",)
+
+                    st.write("")
+                    st.write("")
+
+                    def to_excel(merged_df):
+                        output = BytesIO()
+                        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                        merged_df.to_excel(writer, index=True, sheet_name='Sheet1')
+                        workbook = writer.book
+                        worksheet = writer.sheets['Sheet1']
+                        format1 = workbook.add_format({'num_format': '0.00'})
+                        worksheet.set_column('A:A', None, format1)
+                        writer.save()
+                        processed_data = output.getvalue()
+                        return processed_data
 
 
-                df_xlsx = to_excel(merged_df)
-                st.download_button(label='📥 Export Table with the selected columns to Excel?',
-                                   data=df_xlsx,
-                                   file_name='SPSSselectedColumnsToExcel.xlsx')
+                    df_xlsx = to_excel(merged_df)
+                    st.download_button(label='📥 Export Table with the selected columns to Excel?',
+                                       data=df_xlsx,
+                                       file_name='SPSSselectedColumnsToExcel.xlsx')
+
+
+
+
 
 
 
                 st.write("")
                 st.write("")
+                if st.checkbox("Explore the dataset visually?"):
+                    def load_config(file_path):
+                        with open(file_path, 'r') as config_file:
+                            config_str = config_file.read()
+                        return config_str
+
+
+                    config = load_config('config.json')
+
+                    pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
+
+                st.write("")
+                st.write("")
+
+
+
+
+
+
+
+
 
                 #Tabellen mit Häufigkeiten und Prozenten #########################################
 
-                if st.checkbox("Show Frequencies and Percentages of Values for every chosen Variable"):
+                if st.checkbox("Show frequencies and percentages of values for every chosen variable"):
 
-                    individualTables = st.checkbox("Show individual tables for every Variable") 
+                    individualTables = st.checkbox("Show individual tables for every variable") 
 
                     prozente_anzahl_df = pd.DataFrame()
                     for column in merged_df.columns[0:]:
@@ -453,7 +552,7 @@ if file is not None:
                         #st.write(anzahl_df)
                         prozente_df['Cases'] = anzahl_df.Anzahl
 
-                        prozente_df = prozente_df.sort_values('Label')
+                        #prozente_df = prozente_df.sort_values('Label') #gibt leider manchmal fehlermeldung wenn zahlen vorkommen..
 
                         prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
 
@@ -464,7 +563,7 @@ if file is not None:
 
                     st.write("")
                     st.write("")
-                    st.subheader("Table with all percentages and frequencies of the selected variables")
+                    st.subheader("All column-percentages and frequencies of the selected variables in one Table:")
                     st.write(prozente_anzahl_df)
 
 
@@ -493,14 +592,6 @@ if file is not None:
 
 
 
-
-
-
-
-
-
-
-
                     #dataframe mit den häufigkeiten der Kombinationen ####################
                     AlleKombinationenProzent = merged_df[selected_categorical_cols].value_counts(normalize=True).reset_index()
                     #AlleKombinationenProzent.columns.values[0] = "Label"
@@ -509,7 +600,7 @@ if file is not None:
                     st.dataframe(AlleKombinationenProzent)
 
 
-
+                _="""
                 if st.checkbox("Show labelling/unique values?"):
                     anzahlVariablen = len(selected_numeric_cols) + len(selected_categorical_cols)
                     st.write("Anzahl Variablen: ",anzahlVariablen)
@@ -528,8 +619,9 @@ if file is not None:
 
                     dict_of_merged_df= {} # initialize empty dictionary
 
-                    st.info("None's are not deleted, might be a problem. I'll add functionality here if/when i figure out how")
-                    #merged_df = merged_df.dropna(axis = 0, how ='any') 
+                    st.info("None's are not deleted automatically, can cause problems/error message. I'll add functionality here if/when i figure out how")
+                    if st.checkbox("Delete Nones"):
+                        merged_df = merged_df.dropna(axis = 0, how ='any') 
 
                     for i in range(anzahlVariablen):
                         col = cols[i%anzahlVariablen]
@@ -553,14 +645,59 @@ if file is not None:
                         
                         dict_of_merged_df["merged_df_{}".format(i)] = merged_df[VariablenKolumnenAuswahl[i]].unique()
                         #col.write(dict_of_merged_df["merged_df_{}".format(i)])
+                """
                         
 
                 if st.checkbox("Show descriptive Infos?"):
                     st.write(merged_df.describe())
                     st.write("")
+                    st.write("")
+
+
+
+                ################### mehrfachantwortensets####################################
+                if st.checkbox("Create Multiresponse-sets"):
+
+                    merged_df_KatVariablenMehrfach = labelledData
+                    categorical_cols_forCrossTable = merged_df_KatVariablenMehrfach.columns.tolist()
+
+                    st.write("")
+                    selected_categorical_cols_forMultiResponseSet = st.multiselect('Select variables for the multiresponse-set:',categorical_cols_forCrossTable, key="selected_categorical_cols_forMultiResponseSet")
+                    if len(selected_categorical_cols_forMultiResponseSet)>1:
+                        # Daten in ein Pandas DataFrame laden
+                        df_MultiresponseSet = pd.DataFrame(merged_df_KatVariablenMehrfach, columns=selected_categorical_cols_forMultiResponseSet)
+                        st.write("df_MultiresponseSet:", df_MultiresponseSet)
+
+                        # marken zählen
+                        counts = {}
+                        total_responses = 0
+                        for column in df_MultiresponseSet.columns:
+                            for brand in df_MultiresponseSet[column]:
+                                if pd.notna(brand):
+                                #originalcode if pd.notna(brand) and brand.strip() != '':
+                                    if brand in counts:
+                                        counts[brand] += 1
+                                    else:
+                                        counts[brand] = 1
+                                    total_responses += 1
+
+                        # Ergebnisse als Tabelle anzeigen
+                        MultiresponseSetresult_df = pd.DataFrame(list(counts.items()), columns=['Values', 'Anzahl'])
+                        MultiresponseSetresult_df = MultiresponseSetresult_df.sort_values('Anzahl', ascending=False)
+
+                        # Prozentwerte berechnen
+                        MultiresponseSetresult_df['% Befragte'] = (MultiresponseSetresult_df['Anzahl'] / len(df)) * 100
+                        MultiresponseSetresult_df['% Antworten'] = (MultiresponseSetresult_df['Anzahl'] / total_responses) * 100
+
+                        st.subheader("Multiresponse-Set - Values and Percentages:")
+                        st.write(MultiresponseSetresult_df)
+
 
 
                 #st.write(merged_df.dtypes)
+
+                st.write("")
+                st.write("")
 
                 ################### cross tabulations ####################################
                 if st.checkbox("Create cross-tabulations?"):
@@ -663,7 +800,7 @@ if file is not None:
                     st.write("")
 
 
-                #Tabellen mit Haeufigkeiten und Prozenten  - Versuch mit Kreuztabellen#########################################
+                #Tabellen mit Haeufigkeiten und Prozenten  -  mit Kreuztabellen#########################################
                 #Kat Variablen werden zu Spalten #############
                     # Generate cross table with average values
 
@@ -745,20 +882,9 @@ if file is not None:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
                 ################### cross tabulations - end ####################################
+
+
 
                 st.write("")
                 st.write("")
@@ -782,6 +908,11 @@ if file is not None:
                     sns.heatmap(merged_df.corr(), annot=False, cmap='RdBu')
                     plt.title('Correlation Heatmap', fontsize=8)
                     st.write(fig)
+
+
+
+                ################### profile reporting ####################################
+
 
                 st.write("")
                 st.write("")
