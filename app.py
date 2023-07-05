@@ -53,11 +53,20 @@ if file is not None:
         rawData = df.copy()
 
         # Checkbox to allow renaming columns with variable labels ############################
-        st.write("")
+
+
+
         st.write("")
         st.write("")
         rename_columns = st.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
         st.write("")
+
+        st.write("")
+        dropEmptyColumns= st.checkbox("Drop all columns that only contain Nan or None Values - helps if renaming does not work")
+        if dropEmptyColumns:
+            labelledData = labelledData.dropna(axis=1, how='all')
+            rawData = rawData.dropna(axis=1, how='all')
+
         st.write("")
         st.write("")
 
@@ -103,7 +112,12 @@ if file is not None:
                 for i, row in col_names_labels_df.iterrows():
                     if row['Column Name'] in rawData.columns:
                         rawData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)
-                
+
+
+
+
+
+
 
 
 
@@ -117,7 +131,7 @@ if file is not None:
                 worksheet = writer.sheets['Sheet1']
                 format1 = workbook.add_format({'num_format': '0.00'})
                 worksheet.set_column('A:A', None, format1)
-                writer.save()
+                writer.close()
                 processed_data = output.getvalue()
                 return processed_data
 
@@ -283,9 +297,34 @@ if file is not None:
                         labelledData.rename(columns={row['Column Name']: row['VariableLabelUnique']}, inplace=True)  
     
 
+            #Filer  Data set
+            filterLabelledDataColumns = st.checkbox("Filer Dataset")
+            unique_values = {}
+            
+            if filterLabelledDataColumns:
+            # Spaltenauswahl
+                selected_columns = st.multiselect("Spalten auswählen", options=labelledData.columns.tolist())
 
+                if selected_columns:
+                # Eindeutige Werte in ausgewählten Spalten ermitteln
+                    unique_values = {}
+                for column in selected_columns:
+                    unique_values[column] = labelledData[column].unique()
 
+                # Multiselect-Boxen für eindeutige Werte erstellen
+                selected_values = {}
+                for column, values in unique_values.items():
+                    selected_values[column] = st.multiselect(f"Auswahl für {column}", options=values)
 
+                if any(selected_values.values()):
+                # DataFrame basierend auf den ausgewählten Werten filtern
+                    filtered_df = labelledData.copy()
+                for column, values in selected_values.items():
+                    if values:
+                        labelledData = filtered_df[filtered_df[column].isin(values)]
+
+                # Gefiltertes DataFrame anzeigen
+                #st.dataframe(filtered_df)
 
             st.write(labelledData)
     
@@ -300,7 +339,7 @@ if file is not None:
                 worksheet = writer.sheets['Sheet1']
                 format1 = workbook.add_format({'num_format': '0.00'})
                 worksheet.set_column('A:A', None, format1)
-                writer.save()
+                writer.close()
                 processed_data = output.getvalue()
                 return processed_data
 
@@ -492,7 +531,7 @@ if file is not None:
                         worksheet = writer.sheets['Sheet1']
                         format1 = workbook.add_format({'num_format': '0.00'})
                         worksheet.set_column('A:A', None, format1)
-                        writer.save()
+                        writer.close()
                         processed_data = output.getvalue()
                         return processed_data
 
@@ -517,9 +556,10 @@ if file is not None:
                         return config_str
 
 
-                    config = load_config('config.json')
+                    #config = load_config('config.json') pyg config laden
 
-                    pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
+                    #pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
+                    pyg.walk(merged_df, env='Streamlit', dark='dark')
 
                 st.write("")
                 st.write("")
@@ -575,7 +615,7 @@ if file is not None:
                         worksheet = writer.sheets['Sheet1']
                         format1 = workbook.add_format({'num_format': '0.00'})
                         worksheet.set_column('A:A', None, format1)
-                        writer.save()
+                        writer.close()
                         processed_data = output.getvalue()
                         return processed_data
 
@@ -760,7 +800,7 @@ if file is not None:
                             worksheet = writer.sheets['Sheet1']
                             format1 = workbook.add_format({'num_format': '0.00'})
                             worksheet.set_column('A:A', None, format1)
-                            writer.save()
+                            writer.close()
                             processed_data = output.getvalue()
                             return processed_data
 
@@ -784,7 +824,7 @@ if file is not None:
                             worksheet = writer.sheets['Sheet1']
                             format1 = workbook.add_format({'num_format': '0.00'})
                             worksheet.set_column('A:A', None, format1)
-                            writer.save()
+                            writer.close()
                             processed_data = output.getvalue()
                             return processed_data
 
@@ -939,9 +979,37 @@ if file is not None:
         with MetaDataExpander:
             st.subheader("Metadata")
             meta_dict = meta.__dict__
+
+            if st.checkbox("Show meta_dict.items()?"):
+                st.write("meta_dict.items(): ",meta_dict.items())
+
+
+            if st.checkbox("Show Dictionary with all Infos?"):
+                st.write("meta_dict: ",meta_dict)
+
             meta_list = [{'Name': k, 'Value': v} for k, v in meta_dict.items()]
+
+            meta_list_Namen = [{'Name': k} for k in meta_dict.items()]
+
+            if st.checkbox("Show meta_list_Namen?"):
+                #st.write("meta_list_Namen: ",meta_list_Namen)
+                meta_list_Namen_df = pd.DataFrame(meta_list_Namen)
+                meta_list_variable_value_labels = meta_list.get('variable_value_labels')         
+                #st.write("meta_list_Namen_df: ",meta_list_Namen_df)
+                st.write("meta_list_variable_value_labels: ", meta_list_variable_value_labels)
+
+
+            if st.checkbox("Show meta_list?"):
+                st.write("meta_list: ",meta_list)      
+
             meta_df = pd.DataFrame(meta_list)
             st.write(meta_df)
+
+            if st.checkbox("Show meta_df_gedreht?"):
+                meta_df_gedreht = meta_df.T
+                st.write("meta_df_gedreht:",meta_df_gedreht)
+
+            #st.write("meta_df.variable_value_labels")
 
 
             def to_excel(meta_df):
@@ -952,7 +1020,7 @@ if file is not None:
                 worksheet = writer.sheets['Sheet1']
                 format1 = workbook.add_format({'num_format': '0.00'})
                 worksheet.set_column('A:A', None, format1)
-                writer.save()
+                writer.close()
                 processed_data = output.getvalue()
                 return processed_data
 
@@ -976,7 +1044,7 @@ if file is not None:
                     worksheet = writer.sheets['Sheet1']
                     format1 = workbook.add_format({'num_format': '0.00'})
                     worksheet.set_column('A:A', None, format1)
-                    writer.save()
+                    writer.close()
                     processed_data = output.getvalue()
                     return processed_data
 
