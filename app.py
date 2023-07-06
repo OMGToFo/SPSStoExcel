@@ -298,7 +298,7 @@ if file is not None:
     
 
             #Filer  Data set
-            filterLabelledDataColumns = st.checkbox("Filer Dataset")
+            filterLabelledDataColumns = st.checkbox("Filter Dataset", key="filterLabelledDataColumns")
             unique_values = {}
             
             if filterLabelledDataColumns:
@@ -362,7 +362,7 @@ if file is not None:
             # Replace column names with variable labels if requested
             if statisticalTests:
  
-               my_korrelationsVariablenSelect = st.multiselect("Choose variables for tests",labelledData.columns.tolist(), key='LabeledData')
+               my_korrelationsVariablenSelect = st.multiselect("Choose minimum 2 variables for tests",labelledData.columns.tolist(), key='LabeledData')
                df_statistischeTestLabeledData = labelledData[my_korrelationsVariablenSelect]
                
                if len(my_korrelationsVariablenSelect)>1:
@@ -423,11 +423,13 @@ if file is not None:
                 df2_prefixed = df2.add_prefix('categorical_')
 
                 # Let the user select columns to merge
+                selected_categorical_cols = st.multiselect('Select catgorical variables (men/women, old/young..):', categorical_cols)
+                st.write("")
                 st.write("")
                 selected_numeric_cols = st.multiselect('Select numeric variables (brand awareness 0-100, sympathy 1-7,...) :', numeric_cols)
                 st.write("")
-                selected_categorical_cols = st.multiselect('Select catgorical variables (men/women, old/young..):', categorical_cols)
                 st.write("")
+
                 # Merge the selected columns
                 merged_df = pd.DataFrame()
 
@@ -452,13 +454,15 @@ if file is not None:
                     selected_RecodeColumns = st.multiselect('Select variables to recode', merged_df.columns)
                     if selected_RecodeColumns:
                         recode_data = {}
+                        keyNr = 0
                         # Recode values
                         for column in selected_RecodeColumns:
                             unique_values = merged_df[column].unique()
                             st.info(f"Recode {column}")
                             recode_map = {}
                             for value in unique_values:
-                                new_value = st.text_input(f"Insert new value for {value}", value, key=f"new_valueRecode{value}")
+                                keyNr = keyNr+1
+                                new_value = st.text_input(f"Insert new value for {value}", value, key=f"new_valueRecode{value}"+str(keyNr))
                                 recode_map[value] = new_value
                             recode_data[column] = recode_map
 
@@ -498,8 +502,6 @@ if file is not None:
 
 
 
-
-
                 st.write("")
                 st.write("")
 
@@ -508,10 +510,49 @@ if file is not None:
                     st.write("## Combined dataset")
                     if rename_columns:
                         st.info("Datafile with renamed columns")
+
+
+
+                #Filter  Data set
+                filterMergedDataColumns = st.checkbox("Filter Dataset", key="filterMergedDataColumns")
+                unique_values = {}
+                
+                if filterMergedDataColumns:
+                # Spaltenauswahl
+                    selected_columns = st.multiselect("Spalten auswählen", options=merged_df.columns.tolist(), key="mergedDFcolumns")
+
+                    if selected_columns:
+                    # Eindeutige Werte in ausgewählten Spalten ermitteln
+                        unique_values = {}
+                    for column in selected_columns:
+                        unique_values[column] = merged_df[column].unique()
+
+                    # Multiselect-Boxen für eindeutige Werte erstellen
+                    selected_values = {}
+                    for column, values in unique_values.items():
+                        selected_values[column] = st.multiselect(f"Auswahl für {column}", options=values)
+
+                    if any(selected_values.values()):
+                    # DataFrame basierend auf den ausgewählten Werten filtern
+                        filtered_merged_df = merged_df.copy()
+                    for column, values in selected_values.items():
+                        if values:
+                            merged_df = filtered_merged_df[filtered_merged_df[column].isin(values)]
+
+                    # Gefiltertes DataFrame anzeigen
+
+
+
+
+
                     #st.subheader("Dataset with selected columns (merged_df):")
                     #st.dataframe(merged_df)
 
-                    merged_df = st.experimental_data_editor(merged_df, num_rows="dynamic")
+
+
+
+                if len(merged_df)>0:
+                    merged_df = st.data_editor(merged_df, num_rows="dynamic")
 
                 #st.write("merged_df.columns", merged_df.columns)
 
@@ -543,23 +584,24 @@ if file is not None:
 
 
 
+                if len(merged_df)>0:
+                    if st.checkbox("Show Column Data Types?", key="merged_df.dtypes"):
+                        st.write(merged_df.dtypes)
 
 
+                        st.write("")
+                        st.write("")
+                        if st.checkbox("Explore the dataset visually?"):
+                            def load_config(file_path):
+                                with open(file_path, 'r') as config_file:
+                                    config_str = config_file.read()
+                                return config_str
 
 
-                st.write("")
-                st.write("")
-                if st.checkbox("Explore the dataset visually?"):
-                    def load_config(file_path):
-                        with open(file_path, 'r') as config_file:
-                            config_str = config_file.read()
-                        return config_str
+                            #config = load_config('config.json') pyg config laden
 
-
-                    #config = load_config('config.json') pyg config laden
-
-                    #pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
-                    pyg.walk(merged_df, env='Streamlit', dark='dark')
+                            #pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
+                            pyg.walk(merged_df, env='Streamlit', dark='dark')
 
                 st.write("")
                 st.write("")
@@ -576,7 +618,13 @@ if file is not None:
 
                 if st.checkbox("Show frequencies and percentages of values for every chosen variable"):
 
-                    individualTables = st.checkbox("Show individual tables for every variable") 
+                    
+
+                    individualTables = st.checkbox("Show individual tables for every variable")
+                    if individualTables:
+
+                        st.subheader("Separate tables for every variable:")
+                        st.info("Sum per Variable is 100%")
 
                     prozente_anzahl_df = pd.DataFrame()
                     for column in merged_df.columns[0:]:
@@ -594,23 +642,29 @@ if file is not None:
 
                         #prozente_df = prozente_df.sort_values('Label') #gibt leider manchmal fehlermeldung wenn zahlen vorkommen..
 
-                        prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
+                        #prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
+                        #2023.07.06 append darf wohl nicht mehr verwendet werden
+                        #prozente_anzahl_df = prozente_anzahl_df.concat(prozente_df) gibt fehlermeldung
+                        prozenteAnzahl_GesamtTabelle = pd.concat([prozente_anzahl_df, prozente_df], axis=1)
 
                         if individualTables:
                             #Einzelne Tabellen
+
+
                             st.write(column)
                             st.write(prozente_df)
 
                     st.write("")
                     st.write("")
                     st.subheader("All column-percentages and frequencies of the selected variables in one Table:")
-                    st.write(prozente_anzahl_df)
+                    st.info("Sum per Variable is 100%")
+                    st.write(prozenteAnzahl_GesamtTabelle)
 
 
-                    def to_excel(prozente_anzahl_df):
+                    def to_excel(prozenteAnzahl_GesamtTabelle):
                         output = BytesIO()
                         writer = pd.ExcelWriter(output, engine='xlsxwriter')
-                        prozente_anzahl_df.to_excel(writer, index=False, sheet_name='Sheet1')
+                        prozenteAnzahl_GesamtTabelle.to_excel(writer, index=False, sheet_name='Sheet1')
                         workbook = writer.book
                         worksheet = writer.sheets['Sheet1']
                         format1 = workbook.add_format({'num_format': '0.00'})
@@ -620,7 +674,7 @@ if file is not None:
                         return processed_data
 
 
-                    df_xlsx = to_excel(prozente_anzahl_df)
+                    df_xlsx = to_excel(prozenteAnzahl_GesamtTabelle)
                     st.download_button(label='📥 Export Table with all percentages and frequencies to Excel?',
                                        data=df_xlsx,
                                        file_name='SPSSFrequencyPercentageTableToExcel.xlsx')
