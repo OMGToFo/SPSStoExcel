@@ -33,8 +33,14 @@ col_names_labels_df = pd.DataFrame()
 # File upload widget
 file = st.file_uploader("Upload SPSS file", type=[".sav"])
 
-if file is None:
-    st.info("It may take some time to load and convert the SPSS-File, depending on the size of the dataset")
+
+
+st.write("")
+latinEncoding= st.checkbox("Deactivate latin-1 decoding if you get an error message. For me latin-1 has worked better, therefore it's set as default", value=True)
+st.write("")
+
+#if file is None:
+#    st.info("It may take some time to load and convert the SPSS-File, depending on the size of the dataset")
 
 if file is not None:
     # Convert SPSS file to dataframe
@@ -44,7 +50,10 @@ if file is not None:
             tmp_file.write(file.read())
 
         # Use pyreadstat to open and read SPSS file
-        data, meta = pyreadstat.read_sav(tmp_file.name)
+        if latinEncoding == True:
+            data, meta = pyreadstat.read_sav(tmp_file.name, encoding = "latin1")
+        if latinEncoding == False:
+            data, meta = pyreadstat.read_sav(tmp_file.name)
 
         # Extract dataframe from pyreadstat output
         df = pd.DataFrame(data)
@@ -66,6 +75,9 @@ if file is not None:
         if dropEmptyColumns:
             labelledData = labelledData.dropna(axis=1, how='all')
             rawData = rawData.dropna(axis=1, how='all')
+
+
+
 
         st.write("")
         st.write("")
@@ -355,19 +367,19 @@ if file is not None:
             st.write("")
             st.write("")
             st.write("")
-            statisticalTests = st.checkbox("Perform statistical tests?",key='statTestLabeledData')
+            statisticalTests = st.checkbox("Show statistical info (descriptive Info, Profile-Reporting)?",key='statTestLabeledData')
             st.write("")
             st.write("")
             st.write("")
             # Replace column names with variable labels if requested
             if statisticalTests:
  
-               my_korrelationsVariablenSelect = st.multiselect("Choose minimum 2 variables for tests",labelledData.columns.tolist(), key='LabeledData')
+               my_korrelationsVariablenSelect = st.multiselect("Choose a minimum of 2 labelled variables",labelledData.columns.tolist(), key='LabeledData')
                df_statistischeTestLabeledData = labelledData[my_korrelationsVariablenSelect]
                
                if len(my_korrelationsVariablenSelect)>1:
                     
-                if st.checkbox("Show descriptive Info of labeled Data?"):
+                if st.checkbox("Show descriptive Info of the chosen labeled variables?"):
                        #st.write(df_statistischeTestLabeledData.describe())
 
                        st.write(df_statistischeTestLabeledData.describe(include=np.object))
@@ -554,13 +566,6 @@ if file is not None:
                 if len(merged_df)>0:
                     merged_df = st.data_editor(merged_df, num_rows="dynamic")
 
-                #st.write("merged_df.columns", merged_df.columns)
-
-
-                #st.write("Editable Table with selected columns (edited_df):")
-                #Test mit editierbares dataframe
-                #edited_df = st.experimental_data_editor(merged_df,use_container_width=True,num_rows="dynamic",)
-
                     st.write("")
                     st.write("")
 
@@ -583,19 +588,19 @@ if file is not None:
                                        file_name='SPSSselectedColumnsToExcel.xlsx')
 
 
+                    st.write("")
 
                 if len(merged_df)>0:
                     if st.checkbox("Show Column Data Types?", key="merged_df.dtypes"):
                         st.write(merged_df.dtypes)
 
-
-                        st.write("")
-                        st.write("")
-                        if st.checkbox("Explore the dataset visually?"):
-                            def load_config(file_path):
-                                with open(file_path, 'r') as config_file:
-                                    config_str = config_file.read()
-                                return config_str
+                if len(merged_df)>0:
+                    st.write("")
+                    if st.checkbox("Explore the dataset visually?"):
+                        def load_config(file_path):
+                            with open(file_path, 'r') as config_file:
+                                config_str = config_file.read()
+                            return config_str
 
 
                             #config = load_config('config.json') pyg config laden
@@ -616,15 +621,14 @@ if file is not None:
 
                 #Tabellen mit Häufigkeiten und Prozenten #########################################
 
+
+                prozenteAnzahl_GesamtTabelle = pd.DataFrame()
+
                 if st.checkbox("Show frequencies and percentages of values for every chosen variable"):
 
                     
-
-                    individualTables = st.checkbox("Show individual tables for every variable")
-                    if individualTables:
-
-                        st.subheader("Separate tables for every variable:")
-                        st.info("Sum per Variable is 100%")
+                    st.subheader("Separate tables for every variable:")
+                    st.info("Sum per Variable is 100%")
 
                     prozente_anzahl_df = pd.DataFrame()
                     for column in merged_df.columns[0:]:
@@ -640,28 +644,20 @@ if file is not None:
                         #st.write(anzahl_df)
                         prozente_df['Cases'] = anzahl_df.Anzahl
 
-                        #prozente_df = prozente_df.sort_values('Label') #gibt leider manchmal fehlermeldung wenn zahlen vorkommen..
 
-                        #prozente_anzahl_df = prozente_anzahl_df.append(prozente_df)
-                        #2023.07.06 append darf wohl nicht mehr verwendet werden
-                        #prozente_anzahl_df = prozente_anzahl_df.concat(prozente_df) gibt fehlermeldung
                         prozenteAnzahl_GesamtTabelle = pd.concat([prozente_anzahl_df, prozente_df], axis=1)
 
-                        if individualTables:
-                            #Einzelne Tabellen
+                        st.write(column)
+                        st.write(prozente_df)
 
+                st.write("")
+                st.write("")
+                #st.subheader("All column-percentages and frequencies of the selected variables in one Table:")
+                #st.info("Sum per Variable is 100%")
+                #st.write(prozenteAnzahl_GesamtTabelle)
 
-                            st.write(column)
-                            st.write(prozente_df)
-
-                    st.write("")
-                    st.write("")
-                    st.subheader("All column-percentages and frequencies of the selected variables in one Table:")
-                    st.info("Sum per Variable is 100%")
-                    st.write(prozenteAnzahl_GesamtTabelle)
-
-
-                    def to_excel(prozenteAnzahl_GesamtTabelle):
+                _="""
+                def to_excel(prozenteAnzahl_GesamtTabelle):
                         output = BytesIO()
                         writer = pd.ExcelWriter(output, engine='xlsxwriter')
                         prozenteAnzahl_GesamtTabelle.to_excel(writer, index=False, sheet_name='Sheet1')
@@ -674,24 +670,24 @@ if file is not None:
                         return processed_data
 
 
-                    df_xlsx = to_excel(prozenteAnzahl_GesamtTabelle)
-                    st.download_button(label='📥 Export Table with all percentages and frequencies to Excel?',
+                df_xlsx = to_excel(prozenteAnzahl_GesamtTabelle)
+                st.download_button(label='📥 Export Table with all percentages and frequencies to Excel?',
                                        data=df_xlsx,
                                        file_name='SPSSFrequencyPercentageTableToExcel.xlsx')
 
 
-                    st.write("")
-                    st.write("")
+                st.write("")
+                st.write("")
 
-
+                """
 
 
                     #dataframe mit den häufigkeiten der Kombinationen ####################
-                    AlleKombinationenProzent = merged_df[selected_categorical_cols].value_counts(normalize=True).reset_index()
+                AlleKombinationenProzent = merged_df[selected_categorical_cols].value_counts(normalize=True).reset_index()
                     #AlleKombinationenProzent.columns.values[0] = "Label"
                     #AlleKombinationenProzent.rename(columns={AlleKombinationenProzent.columns[1]: 'Percentage'}, inplace=True)
-                    st.write("Occurence of combinations of the categorical variables")
-                    st.dataframe(AlleKombinationenProzent)
+                st.write("Occurence of combinations of the categorical variables")
+                st.dataframe(AlleKombinationenProzent)
 
 
                 _="""
@@ -804,44 +800,22 @@ if file is not None:
                     # Generate cross table with average values
                     if selected_object_vars and selected_float_vars:
 
-                        _="""
-                        cross_table = pd.pivot_table(merged_df, values=selected_float_vars, columns=selected_object_vars,
-                                                     aggfunc='mean')
-                        cross_table.columns = cross_table.columns.map(' '.join)
-                        cross_table = cross_table.reset_index().rename(columns={'index': 'VariableName'})
-
-                        st.write("cross_table mit untervariablen in der Spalte")
-                        st.write(cross_table)
-                        """
-
-
-
                         st.info("         ")
                         st.write("Count of cases: ",len(merged_df))
 
                         # Group by selected object variables and calculate average values for selected float variables
 
-                        #thomasTest
-
                         ThomasFormatiertesDataframe = pd.DataFrame(columns=['KatVariable'] + list(selected_float_vars))
                         AnzahlKategorischeVariablen = len(selected_categorical_cols)
                         for t in range(AnzahlKategorischeVariablen):
                             Thomasgrouped_df = merged_df.groupby(selected_object_vars[t])[selected_float_vars].mean().reset_index()
-                            
-                            
-                            
                             Thomasgrouped_df.columns.values[0] = "KatVariable"
-                            #st.write("Hej Thomasgrouped_df: ", Thomasgrouped_df)
-
-                            #ThomasFormatiertesDataframe.append(Thomasgrouped_df)
                             ThomasFormatiertesDataframe = pd.concat([ThomasFormatiertesDataframe, Thomasgrouped_df])
                             ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.reset_index(drop=True)
                             ThomasFormatiertesDataframe.index = ThomasFormatiertesDataframe['KatVariable']
-                            #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.set_index('KatVariable')
-                            #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.drop(['KatVariable'],axis = 1, inplace = True)
                             TransposedDataframe = ThomasFormatiertesDataframe.T
                             TransposedDataframe = TransposedDataframe.drop(TransposedDataframe.index[0])
-                            #ThomasFormatiertesDataframe = ThomasFormatiertesDataframe.transpose()
+
 
                         st.write("")
                         st.write("Table with average values - categories in the columns:  ", TransposedDataframe)
