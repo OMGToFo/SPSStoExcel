@@ -8,9 +8,11 @@ from io import StringIO
 
 import numpy as np
 
-#Um den Datensatz zu analysieren:
-from streamlit_pandas_profiling import st_profile_report
-from pandas_profiling import ProfileReport
+
+
+#update 2023.12.30 wegen Fehlermeldung
+#from ydata_profiling import ProfileReport
+#from streamlit_pandas_profiling import st_profile_report
 
 #2023.06.18 pygwalker visualization library
 import pygwalker as pyg
@@ -254,19 +256,17 @@ if file is not None:
 
 
                    st.write("")
-                   
+                   _="""
                    if st.button("Show Profile-Reporting?"):
-
-           
-                        
-                        
-                    st.write("ProfileReport:")
-                    profile = ProfileReport(df_statistischeTestrawData)
-                    st_profile_report(profile)
-
-
-                    export=profile.to_html()
-                    st.download_button(label="Download Profile Report?", data=export, file_name='report.html')
+  
+                        st.write("ProfileReport:")
+                        profile = ProfileReport(df_statistischeTestrawData)
+                        st_profile_report(profile)
+    
+    
+                        export=profile.to_html()
+                        st.download_button(label="Download Profile Report?", data=export, file_name='report.html')
+                    """
 
 
 
@@ -401,18 +401,16 @@ if file is not None:
                    
                    
                    
-                   
+                _="""   
                 if st.button("Show Profile-Reporting?", key='profileReporLabeledeDataReport'):
-
-               
-                        
-                        
+     
                     st.write("ProfileReport:")
                     profile = ProfileReport(df_statistischeTestLabeledData)
                     st_profile_report(profile)
                     
                     export=profile.to_html()
                     st.download_button(label="Download Profile Report", data=export, file_name='report.html')
+                """
 
 
 
@@ -425,7 +423,7 @@ if file is not None:
         if len(rawData)>1 and len(labelledData)>1:
 
 
-            MergedDataExpander = st.expander("Ccombined datasets") ############################
+            MergedDataExpander = st.expander("Combined datasets") ############################
             with MergedDataExpander:
 
                 # Load the data frames
@@ -442,7 +440,7 @@ if file is not None:
 
                 #st.write(df1_prefixed)
                 #st.write(df2_prefixed)
-                st.subheader("Combinded Dataset containing all categorical and numerical Variables")
+                st.subheader("Combined Dataset containing all categorical and numerical Variables")
                 #mergeAll = st.button("Merge all columns with categorical and numerical data?")
                 mergeAll = True
                 mergeAll_df = pd.DataFrame()
@@ -689,7 +687,6 @@ if file is not None:
 
                 if st.checkbox("Show frequencies and percentages of values for every chosen variable"):
 
-                    
                     st.subheader("Separate tables for every variable:")
                     st.info("Sum per Variable is 100%")
 
@@ -1048,6 +1045,7 @@ if file is not None:
                 st.write("")
                 st.write("")
 
+                _="""
                 if st.button("Show Profile-Reporting of all selected variables?", key='profileReporLabeledeData'):
                     st.write("ProfileReport:")
                     profile = ProfileReport(merged_df)
@@ -1056,7 +1054,7 @@ if file is not None:
                     export = profile.to_html()
                     st.download_button(label="Download Profile Report of selected variables", data=export, file_name='report.html')
 
-
+                """
 
 
         ########################################## Metadata  ##############################################################################################################################
