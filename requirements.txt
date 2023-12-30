@@ -1,3 +1,4 @@
+lxml==4.6.2 #wegen Fehlermeldung bei streamlit installation
 docx==0.2.4
 matplotlib==3.5.1
 numpy==1.21.6
