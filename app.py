@@ -31,12 +31,12 @@ st.info("Here you can view SPSS-Files with/without labels and also export them t
 col_names_labels_df = pd.DataFrame()
 
 # File upload widget
-file = st.file_uploader("Upload SPSS file", type=[".sav"])
+file = st.sidebar.file_uploader("Upload SPSS file", type=[".sav"])
 
 
 
-st.write("")
-latinEncoding= st.checkbox("Deactivate latin-1 decoding if you get an error message. For me latin-1 has worked better, therefore it's set as default", value=True)
+st.sidebar.write("")
+latinEncoding= st.sidebar.checkbox("Deactivate latin-1 decoding if you get an error message. For me latin-1 has worked better, therefore it's set as default", value=True)
 st.write("")
 
 #if file is None:
@@ -65,13 +65,13 @@ if file is not None:
 
 
 
-        st.write("")
-        st.write("")
-        rename_columns = st.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
-        st.write("")
 
-        st.write("")
-        dropEmptyColumns= st.checkbox("Drop all columns that only contain Nan or None Values - helps if renaming does not work")
+        st.sidebar.write("")
+        rename_columns = st.sidebar.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
+
+
+        st.sidebar.write("")
+        dropEmptyColumns= st.sidebar.checkbox("Drop all columns that only contain Nan or None Values - helps if renaming does not work")
         if dropEmptyColumns:
             labelledData = labelledData.dropna(axis=1, how='all')
             rawData = rawData.dropna(axis=1, how='all')
@@ -93,7 +93,7 @@ if file is not None:
 
         rawDataExpander = st.expander("Show & save Raw Data?")  ############################
         with rawDataExpander:
-            st.write("## Raw Data")
+            st.write("## Raw Data without labels")
 
 
             if rename_columns:
@@ -134,6 +134,12 @@ if file is not None:
 
 
             st.write(rawData)
+
+            #st.info("columns with numeric data types")
+            #numeric_df = rawData.select_dtypes(include='number')
+            #st.write(numeric_df)
+
+
 
             def to_excel(rawData):
                 output = BytesIO()
@@ -419,7 +425,7 @@ if file is not None:
         if len(rawData)>1 and len(labelledData)>1:
 
 
-            MergedDataExpander = st.expander("Create a new dataset with chosen variables?") ############################
+            MergedDataExpander = st.expander("Ccombined datasets") ############################
             with MergedDataExpander:
 
                 # Load the data frames
@@ -434,7 +440,67 @@ if file is not None:
                 df1_prefixed = df1.add_prefix('numeric_')
                 df2_prefixed = df2.add_prefix('categorical_')
 
-                # Let the user select columns to merge
+                #st.write(df1_prefixed)
+                #st.write(df2_prefixed)
+                st.subheader("Combinded Dataset containing all categorical and numerical Variables")
+                #mergeAll = st.button("Merge all columns with categorical and numerical data?")
+                mergeAll = True
+                mergeAll_df = pd.DataFrame()
+                if mergeAll:
+
+                    _="""
+                    mergeAll_df = df2_prefixed.merge(
+                        df1_prefixed,
+                        left_on='categorical_Participant',
+                        right_on='numeric_Participant',
+                        # You can choose 'inner', 'outer', 'left', or 'right' depending on your requirements
+                    )
+                    """
+
+                    mergeAll_df = pd.merge(df2_prefixed, df1_prefixed, left_index=True, right_index=True)
+
+
+
+                # Display the merged data frame
+                if len(mergeAll_df)>0:
+                    #st.write("## Combined dataset with all variables")
+
+                    st.write(mergeAll_df)
+                    #st.write(mergeAll_df.describe())
+
+
+
+
+                if len(mergeAll_df)>0:
+
+                    def to_excel(mergeAll_df):
+                        output = BytesIO()
+                        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                        mergeAll_df.to_excel(writer, index=True, sheet_name='Sheet1')
+                        workbook = writer.book
+                        worksheet = writer.sheets['Sheet1']
+                        format1 = workbook.add_format({'num_format': '0.00'})
+                        worksheet.set_column('A:A', None, format1)
+                        writer.close()
+                        processed_data = output.getvalue()
+                        return processed_data
+
+
+                    df_xlsx = to_excel(mergeAll_df)
+                    st.download_button(label='📥 Export combined dataset to Excel?',
+                                       data=df_xlsx,
+                                       file_name='SPSSallCombinedColumnsToExcel.xlsx')
+
+
+
+
+
+
+
+                # Let the user select columns to merge #####################
+                st.divider()
+                st.subheader("")
+                st.subheader("Create a new dataset of chosen Variables")
                 selected_categorical_cols = st.multiselect('Select catgorical variables (men/women, old/young..):', categorical_cols)
                 st.write("")
                 st.write("")
@@ -444,8 +510,6 @@ if file is not None:
 
                 # Merge the selected columns
                 merged_df = pd.DataFrame()
-
-                # Merge numeric columns
 
                 # Merge categorical columns
                 for col in selected_categorical_cols:
@@ -519,9 +583,8 @@ if file is not None:
 
                 # Display the merged data frame
                 if len(merged_df)>0:
-                    st.write("## Combined dataset")
-                    if rename_columns:
-                        st.info("Datafile with renamed columns")
+                    st.write()
+
 
 
 
