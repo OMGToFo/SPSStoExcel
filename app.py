@@ -29,6 +29,7 @@ st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some basic statistical testing and tabulation")
+st.info("Unfortunatlely this app get's shut down now and then, i think due to data usage limits")
 
 col_names_labels_df = pd.DataFrame()
 
