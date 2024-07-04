@@ -29,7 +29,7 @@ st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some basic statistical testing and tabulation")
-st.warning("Unfortunatlely this app get's shut down now and then, i think due to data usage limits")
+st.warning("Unfortunatlely this app crashes kinda often, i think due to data usage limits")
 
 col_names_labels_df = pd.DataFrame()
 
@@ -67,14 +67,12 @@ if file is not None:
         # Checkbox to allow renaming columns with variable labels ############################
 
 
+        st.write("")
+        rename_columns = st.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
 
 
-        st.sidebar.write("")
-        rename_columns = st.sidebar.checkbox("Rename column names with labels \n (Attention - as of now there have to be Variable Labels in SPSS to all Variables!")
-
-
-        st.sidebar.write("")
-        dropEmptyColumns= st.sidebar.checkbox("Drop all columns that only contain Nan or None Values - helps if renaming does not work")
+        st.write("")
+        dropEmptyColumns= st.checkbox("Drop all columns that only contain Nan or None Values - helps if renaming does not work")
         if dropEmptyColumns:
             labelledData = labelledData.dropna(axis=1, how='all')
             rawData = rawData.dropna(axis=1, how='all')
