@@ -9,13 +9,14 @@ from io import StringIO
 import numpy as np
 
 
+#2024.12.18.12 Version ohne Pygwalker weil Fehlermeldung
 
 #update 2023.12.30 wegen Fehlermeldung
 #from ydata_profiling import ProfileReport
 #from streamlit_pandas_profiling import st_profile_report
 
 #2023.06.18 pygwalker visualization library
-import pygwalker as pyg
+#import pygwalker as pyg 2024.12.10 probetest
 
 #These are the visualization libraries. Matplotlib is standard and is what most people use.
 #Seaborn works on top of matplotlib, as we mentioned in the course.
@@ -29,13 +30,7 @@ st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some basic statistical testing and tabulation")
-st.markdown('''
-:blue-background[Unfortunatlely this app crashes kinda often, due to data usage limits.   
-It's better to run this app locally on your computer.]  
-Just follow these steps:  
-Clone the repository to your local machine.  
-Install the required dependencies by running the command pip install -r requirements.txt.  
-Run the app by typing streamlit run app.py in your terminal''')
+st.warning("Unfortunatlely this app crashes kinda often, i think due to data usage limits")
 
 col_names_labels_df = pd.DataFrame()
 
@@ -378,7 +373,7 @@ if file is not None:
             st.write("")
             st.write("")
             st.write("")
-            statisticalTests = st.checkbox("Show statistical info (descriptive Info, Profile-Reporting)?",key='statTestLabeledData')
+            statisticalTests = st.checkbox("Show statistical info (descriptive Info)?",key='statTestLabeledData')
             st.write("")
             st.write("")
             st.write("")
@@ -503,7 +498,7 @@ if file is not None:
                 # Let the user select columns to merge #####################
                 st.divider()
                 st.subheader("")
-                st.subheader("Create a new dataset of chosen Variables")
+                st.subheader("Create a new dataset of choosen Variables")
                 selected_categorical_cols = st.multiselect('Select catgorical variables (men/women, old/young..):', categorical_cols)
                 st.write("")
                 st.write("")
@@ -659,7 +654,7 @@ if file is not None:
                 if len(merged_df)>0:
                     if st.checkbox("Show Column Data Types?", key="merged_df.dtypes"):
                         st.write(merged_df.dtypes)
-
+                _="""
                 if len(merged_df)>0:
                     st.write("")
                     if st.checkbox("Explore the dataset visually?"):
@@ -673,7 +668,7 @@ if file is not None:
 
                             #pyg.walk(merged_df, env='Streamlit', dark='dark', spec=config)
                             pyg.walk(merged_df, env='Streamlit', dark='dark')
-
+                """
                 st.write("")
                 st.write("")
 
