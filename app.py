@@ -32,8 +32,9 @@ st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some very basic statistical testing and tabulation")
 st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits")
 st.markdown('''
-It is better to use this app locally on your computer, follow these steps:
+So it is better to use this app locally on your computer, follow these steps:
 
+- Install python om your computer.
 - Clone the repository to your local machine.
 - Install the required dependencies by running the command pip install -r requirements.txt.
 - Run the app by typing streamlit run app.py in your terminal.
