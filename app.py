@@ -29,10 +29,10 @@ sns.set()
 st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
-st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some basic statistical testing and tabulation")
+st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some very basic statistical testing and tabulation")
 st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits")
 st.markdown('''
-To use this app locally on your computer, follow these steps:
+It is better to use this app locally on your computer, follow these steps:
 
 - Clone the repository to your local machine.
 - Install the required dependencies by running the command pip install -r requirements.txt.
