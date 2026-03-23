@@ -1,8 +1,8 @@
 lxml==4.6.2 #wegen Fehlermeldung bei streamlit installation
 docx==0.2.4
 matplotlib==3.5.1
-numpy==1.21.6
-pandas==1.4.2
+numpy# geändert 2026.03 ==1.21.6
+pandas #geändert 2026.03 ==1.4.2
 pandas_profiling==3.6.6
 #pygwalker==0.1.10 deaktiviert 2024.12.18 wegen Fehlermeldung
 pyreadstat==1.1.9
