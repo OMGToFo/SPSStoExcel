@@ -8,12 +8,14 @@ Unfortunatlely it get's shut down now and then, due to data usage limits of the 
 I think that SPSS still has a very efficent way for viewing and analyzing data sets. The possibility to easily switch betwen raw data, labelled data and variable definitions is still unique and very convenient. In this app you can at least export the different SPSS views to excel. i also added some basic options for statistical analysis and tabulations, hope to improve the possibilities over time.
 
 
+
+
 <a href="https://www.buymeacoffee.com/thomafors8" target="_blank">
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
 </a>
 
 
-##Local Usage
+## Local Usage
 
 To use this app locally on your computer, follow these steps:
 
