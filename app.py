@@ -47,14 +47,13 @@ So it is better to use this app locally on your computer, follow these steps:
 
 st.markdown(
     """
-    <a href="https://www.buymeacoffee.com/thomafors8" target="_blank">
+    <a href="https://www.buymeacoffee.com/thomafors8" target="_blank" style="text-decoration: none;">
         <button style="
             background-color: #FFDD00;
             color: #000000;
             border: none;
             padding: 10px 20px;
             text-align: center;
-            text-decoration: none;
             display: inline-block;
             font-size: 16px;
             font-weight: bold;
@@ -64,7 +63,7 @@ st.markdown(
         </button>
     </a>
     """,
-    unsafe_html=True
+    unsafe_allow_html=True
 )
 
 
