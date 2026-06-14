@@ -10,6 +10,7 @@ import numpy as np
 
 
 #2024.12.18.12 Version ohne Pygwalker weil Fehlermeldung
+#2025.06.14.9 added buymeacoffe :-)
 
 #update 2023.12.30 wegen Fehlermeldung
 #from ydata_profiling import ProfileReport
@@ -30,7 +31,7 @@ st.set_page_config(page_title='SPSS Viewer',layout="wide")
 
 st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some very basic statistical testing and tabulation")
-st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits")
+st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits of the provider")
 st.markdown('''
 So it is better to use this app locally on your computer, follow these steps:
 
@@ -42,6 +43,34 @@ So it is better to use this app locally on your computer, follow these steps:
 - Once the file is loaded, you can view it on the main panel.Sometimes it takes some time o load and convert the SPSS-File
 - If you want to save the file as an Excel file, simply click on the "Save as Excel" button
 ''')
+
+
+st.markdown(
+    """
+    <a href="https://www.buymeacoffee.com/thomafors8" target="_blank">
+        <button style="
+            background-color: #FFDD00;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;">
+            ☕ Buy me a coffee
+        </button>
+    </a>
+    """,
+    unsafe_html=True
+)
+
+
+
+
+
 
 col_names_labels_df = pd.DataFrame()
 
