@@ -7,11 +7,17 @@ Unfortunatlely it get's shut down now and then, due to data usage limits of the 
 
 I think that SPSS still has a very efficent way for viewing and analyzing data sets. The possibility to easily switch betwen raw data, labelled data and variable definitions is still unique and very convenient. In this app you can at least export the different SPSS views to excel. i also added some basic options for statistical analysis and tabulations, hope to improve the possibilities over time.
 
-Local Usage
+
+<a href="https://www.buymeacoffee.com/thomafors8" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
+
+
+##Local Usage
 
 To use this app locally on your computer, follow these steps:
 
-Running a Streamlit app that you found on GitHub is a fantastic way to try out data tools, dashboards, and web applications. If you have never done this before, the process might seem a bit intimidating, but it breaks down into a few straightforward steps.
+Running a Streamlit app that you found on GitHub is a great way to try out data tools, dashboards, and web applications. If you have never done this before, the process might seem a bit intimidating, but it breaks down into a few straightforward steps.
 
 Here is a step-by-step, beginner-friendly guide to getting that app running locally on your computer.
 
@@ -19,7 +25,7 @@ Here is a step-by-step, beginner-friendly guide to getting that app running loca
 
 ## Prerequisites: Quick Check
 
-Before we start, make sure you have **Python** installed on your computer.
+At first, make sure you have **Python** installed on your computer.
 
 * You can check by opening your terminal (Mac/Linux) or Command Prompt/PowerShell (Windows) and typing: `python --version` (or `python3 --version`).
 * If you don't have it, download and install it from [python.org](https://www.python.org/).
