@@ -35,13 +35,66 @@ st.warning("Unfortunatlely this app crashes kinda often, due to data usage limit
 st.markdown('''
 So it is better to use this app locally on your computer, follow these steps:
 
-- Install python om your computer.
-- Clone the repository to your local machine.
-- Install the required dependencies by running the command pip install -r requirements.txt.
-- Run the app by typing streamlit run app.py in your terminal.
-- Select the SPSS file you want to view.
-- Once the file is loaded, you can view it on the main panel.Sometimes it takes some time o load and convert the SPSS-File
-- If you want to save the file as an Excel file, simply click on the "Save as Excel" button
+
+Here's a clearer and more professional version of the instructions:
+
+Running the Streamlit App Locally
+
+Follow these steps to install and run the application on your computer:
+
+Install Python
+
+Download and install Python from https://www.python.org/downloads/.
+To verify the installation, open a terminal and run:
+python --version
+
+
+Clone the Repository
+
+Clone the project repository to your local machine:
+git clone <repository-url>
+
+Navigate to the project folder:
+cd spsstoexcel
+
+
+Install the Required Dependencies
+
+Install all required Python packages by running:
+pip install -r requirements.txt
+
+
+Start the Application
+
+Launch the Streamlit app with:
+streamlit run app.py
+
+Your default web browser should automatically open the application. If not, copy and open the URL displayed in the terminal.
+
+Open an SPSS File
+
+Use the file uploader in the app to select the SPSS (.sav) file you would like to analyze.
+
+View the Data
+
+Once the file has been uploaded, the data will be displayed in the main panel.
+Depending on the size of the SPSS file, loading and conversion may take a few moments.
+
+Export to Excel
+
+To save the dataset as an Excel file, click the "Save as Excel" button.
+The converted Excel file will then be available for download.
+Troubleshooting
+Ensure that Python and all required dependencies are installed successfully.
+If you encounter package installation issues, try updating pip:
+python -m pip install --upgrade pip
+
+If the application does not start, check the error messages displayed in the terminal for additional details.
+
+Tip: For best performance, use the latest version of Python supported by the application and keep your dependencies up to date.
+
+
+
 ''')
 
 
