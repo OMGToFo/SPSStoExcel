@@ -90,6 +90,7 @@ python -m pip install --upgrade pip
 
 If the application does not start, check the error messages displayed in the terminal for additional details and ask AI :-)
 
+---
 
 ''')
 
