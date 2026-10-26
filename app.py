@@ -33,9 +33,10 @@ st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some very basic statistical testing and tabulation")
 st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits of the provider")
 
+st.markdown('''
 So it is better to use this app locally on your computer, follow these steps:
-
 Follow these steps to install and run the application on your computer:
+''')
 
 with st.expander("📖 How to Run the App Locally"):
     st.markdown('''
