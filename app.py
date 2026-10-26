@@ -32,67 +32,69 @@ st.set_page_config(page_title='SPSS Viewer',layout="wide")
 st.title("SPSS File Viewer")
 st.info("Here you can view SPSS-Files with/without labels and also export them to Excel and do some very basic statistical testing and tabulation")
 st.warning("Unfortunatlely this app crashes kinda often, due to data usage limits of the provider")
-st.markdown('''
+
 So it is better to use this app locally on your computer, follow these steps:
 
 Follow these steps to install and run the application on your computer:
 
----
-Install Python
-
-Download and install Python from https://www.python.org/downloads/.
-To verify the installation, open a terminal and run:
-python --version
-
----
-Clone the Repository
-
-Clone the project repository to your local machine:
-git clone <repository-url>
-
-Navigate to the project folder:
-cd spsstoexcel
-
----
-Install the Required Dependencies
-
-Install all required Python packages by running:
-pip install -r requirements.txt
-
----
-Start the Application
-
-Launch the Streamlit app with:
-streamlit run app.py
-
-Your default web browser should automatically open the application. If not, copy and open the URL displayed in the terminal.
-
----
-Open an SPSS File
-
-Use the file uploader in the app to select the SPSS (.sav) file you would like to analyze.
-
----
-View the Data
-
-Once the file has been uploaded, the data will be displayed in the main panel.
-Depending on the size of the SPSS file, loading and conversion may take a few moments.
-
----
-Export to Excel
-
-To save the dataset as an Excel file, click the "Save as Excel" button.
-The converted Excel file will then be available for download.
-Troubleshooting
-Ensure that Python and all required dependencies are installed successfully.
-If you encounter package installation issues, try updating pip:
-python -m pip install --upgrade pip
-
-If the application does not start, check the error messages displayed in the terminal for additional details and ask AI :-)
-
----
-
-''')
+with st.expander("📖 How to Run the App Locally"):
+    st.markdown('''
+    ---
+    Install Python
+    
+    Download and install Python from https://www.python.org/downloads/.
+    To verify the installation, open a terminal and run:
+    python --version
+    
+    ---
+    Clone the Repository
+    
+    Clone the project repository to your local machine:
+    git clone <repository-url>
+    
+    Navigate to the project folder:
+    cd spsstoexcel
+    
+    ---
+    Install the Required Dependencies
+    
+    Install all required Python packages by running:
+    pip install -r requirements.txt
+    
+    ---
+    Start the Application
+    
+    Launch the Streamlit app with:
+    streamlit run app.py
+    
+    Your default web browser should automatically open the application. If not, copy and open the URL displayed in the terminal.
+    
+    ---
+    Open an SPSS File
+    
+    Use the file uploader in the app to select the SPSS (.sav) file you would like to analyze.
+    
+    ---
+    View the Data
+    
+    Once the file has been uploaded, the data will be displayed in the main panel.
+    Depending on the size of the SPSS file, loading and conversion may take a few moments.
+    
+    ---
+    Export to Excel
+    
+    To save the dataset as an Excel file, click the "Save as Excel" button.
+    The converted Excel file will then be available for download.
+    Troubleshooting
+    Ensure that Python and all required dependencies are installed successfully.
+    If you encounter package installation issues, try updating pip:
+    python -m pip install --upgrade pip
+    
+    If the application does not start, check the error messages displayed in the terminal for additional details and ask AI :-)
+    
+    ---
+    
+    ''')
 
 
 st.markdown(
